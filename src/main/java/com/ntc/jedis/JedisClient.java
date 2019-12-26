@@ -32,7 +32,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @since Mar 7, 2018
  */
 public class JedisClient {
-    private final Logger logger = LoggerFactory.getLogger(JedisClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(JedisClient.class);
 	private static final ConcurrentHashMap<String, JedisClient> mapInstance = new ConcurrentHashMap<String, JedisClient>(16, 0.9f, 16);
 	private static Lock lock = new ReentrantLock();
 
@@ -41,7 +41,7 @@ public class JedisClient {
     private JedisClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
         cfg.setTestOnBorrow(true);
-        cfg.setMaxTotal(100);
+        cfg.setMaxTotal(100); // DEFAULT_MAX_TOTAL = 8 ==> the number instance in pool.
         String host = NConfig.getConfig().getString(prefix + ".host", "127.0.0.1");
         int port = NConfig.getConfig().getInt(prefix + ".port", 6379);
         System.out.println("host: " + host);
@@ -76,7 +76,7 @@ public class JedisClient {
         return jedis;
     }
     
-    public void returnJedis(Jedis jedis){
+    public static void returnJedis(Jedis jedis){
         try {
             if (jedis != null) {
                 jedis.close();

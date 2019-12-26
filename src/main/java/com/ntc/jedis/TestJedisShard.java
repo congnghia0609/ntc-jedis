@@ -36,6 +36,11 @@ public class TestJedisShard {
             String[] arrt = hp.split(":");
             System.out.println("arrt: " + Arrays.asList(arrt));
         }
+        // Output:
+        //arr: [127.0.0.1:1111:, 127.0.0.2:2222, 127.0.0.3:3333:cccc]
+        //arrt: [127.0.0.1, 1111]
+        //arrt: [127.0.0.2, 2222]
+        //arrt: [127.0.0.3, 3333, cccc]
     }
 
 }

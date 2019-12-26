@@ -26,6 +26,8 @@ import redis.clients.jedis.Transaction;
  *
  * @author nghiatc
  * @since Mar 7, 2018
+ * 
+ * https://github.com/xetorthio/jedis
  */
 public class TestJedisClient {
 
@@ -33,23 +35,18 @@ public class TestJedisClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Jedis jedis = JedisClient.getInstance("test").borrowJedis();
         try {
-            Pipeline p = jedis.pipelined();
-            p.set("fool", "bar");
-            p.zadd("foo", 1, "barowitch");  p.zadd("foo", 0, "barinsky"); p.zadd("foo", 0, "barikoviev");
-            Response<String> pipeString = p.get("fool");
-            Response<Set<String>> sose = p.zrange("foo", 0, -1);
-            p.sync();
-
-            int soseSize = sose.get().size();
-            System.out.println("soseSize: " + soseSize);
-            Set<String> setBack = sose.get();
-            System.out.println("setBack: " + setBack);
+            // 1. test1
+//            test1();
+            
+            // 2. testTransaction
+//            testTransaction(false);
+            
+            // 3. testPipeline
+            testPipeline(false);
+            
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            jedis.close();
         }
     }
     
@@ -66,14 +63,21 @@ public class TestJedisClient {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            jedis.close();
+            JedisClient.returnJedis(jedis);
         }
     }
 
-    public static void testTransaction(){
-        // Twemproxy no support Transactions
-        Jedis jedis = JedisClient.getInstance("test").borrowJedis();
+    public static void testTransaction(boolean proxy){
+        Jedis jedis = null;
         try {
+            if (proxy) {
+                // Twemproxy no support Transactions
+                jedis = JedisClient.getInstance("test").borrowJedis();
+            } else {
+                // No Twemproxy proxy, use directly Redis Single node --> support transaction
+                // jedis = new Jedis("127.0.0.1", 6380);
+                jedis = JedisClient.getInstance("transaction").borrowJedis();
+            }
             Transaction t = jedis.multi();
             t.set("fool", "bar"); 
             Response<String> result1 = t.get("fool");
@@ -88,24 +92,33 @@ public class TestJedisClient {
             System.out.println("foolbar: " + foolbar);
             int soseSize = sose.get().size();                      // on sose.get() you can directly call Set methods!
             System.out.println("soseSize: " + soseSize);
+            System.out.println("sose: " + sose.get().toString());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            jedis.close();
+            JedisClient.returnJedis(jedis);
         }
     }
     
-    public static void testPipeline(){
-        // Twemproxy no support Pipeline.
-        Jedis jedis = JedisClient.getInstance("test").borrowJedis();
+    public static void testPipeline(boolean proxy){
+        Jedis jedis = null;
         try {
+            if (proxy) {
+                // Twemproxy no support Pipeline
+                jedis = JedisClient.getInstance("test").borrowJedis();
+            } else {
+                // No Twemproxy proxy, use directly Redis Single node --> support Pipeline
+                // jedis = new Jedis("127.0.0.1", 6380);
+                jedis = JedisClient.getInstance("pipeline").borrowJedis();
+            }
             Pipeline p = jedis.pipelined();
             p.set("fool", "bar"); 
-            p.zadd("foo", 1, "barowitch");  p.zadd("foo", 0, "barinsky"); p.zadd("foo", 0, "barikoviev");
+            p.zadd("pfoo", 1, "barowitch");  p.zadd("pfoo", 0, "barinsky"); p.zadd("pfoo", 0, "barikoviev");
             Response<String> pipeString = p.get("fool");
-            Response<Set<String>> sose = p.zrange("foo", 0, -1);
-            p.sync(); 
+            Response<Set<String>> sose = p.zrange("pfoo", 0, -1);
+            p.sync();
 
+            System.out.println("pipeString: " + pipeString.get());
             int soseSize = sose.get().size();
             System.out.println("soseSize: " + soseSize);
             Set<String> setBack = sose.get();
@@ -113,7 +126,7 @@ public class TestJedisClient {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            jedis.close();
+            JedisClient.returnJedis(jedis);
         }
     }
 }

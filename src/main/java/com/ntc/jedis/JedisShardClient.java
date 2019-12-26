@@ -34,7 +34,7 @@ import redis.clients.jedis.ShardedJedisPool;
  * @since Mar 7, 2018
  */
 public class JedisShardClient {
-    private final Logger logger = LoggerFactory.getLogger(JedisShardClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(JedisShardClient.class);
 	private static final ConcurrentHashMap<String, JedisShardClient> mapInstance = new ConcurrentHashMap<String, JedisShardClient>(16, 0.9f, 16);
 	private static Lock lock = new ReentrantLock();
 
@@ -44,8 +44,8 @@ public class JedisShardClient {
     private JedisShardClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
         cfg.setTestOnBorrow(true);
-        cfg.setMaxTotal(100);
-        // "127.0.0.1:1111:;127.0.0.2:2222;127.0.0.3:3333:cccc"
+        cfg.setMaxTotal(100); // DEFAULT_MAX_TOTAL = 8 ==> the number instance in pool.
+        // "127.0.0.1:1111:;127.0.0.2:2222;127.0.0.3:3333:cccc" | host:port:password
         String shards = NConfig.getConfig().getString(prefix + ".shards", "127.0.0.1:6379");
         System.out.println("shards: " + shards);
         if (shards != null && !shards.isEmpty()) {
@@ -99,7 +99,7 @@ public class JedisShardClient {
         return jedis;
     }
     
-    public void returnJedis(ShardedJedis jedis){
+    public static void returnJedis(ShardedJedis jedis){
         try {
             if (jedis != null) {
                 jedis.close();

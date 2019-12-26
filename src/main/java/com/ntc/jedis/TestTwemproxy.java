@@ -31,10 +31,16 @@ public class TestTwemproxy {
      */
     public static void main(String[] args) {
         Jedis jedis = new Jedis("localhost", 22122);
-        String value = jedis.get("order:6");
-        System.out.println("value: " + value);
-        List<String> mvalue = jedis.mget("userkey", "somekey", "anotherkey", "order:1", "order:2", "order:3", "order:4", "order:5", "order:6", "userkey1", "somekey1", "anotherkey1", "z1");
-        System.out.println("mvalue: " + mvalue);
+        
+//        String value = jedis.get("order:6");
+//        System.out.println("value: " + value);
+//        List<String> mvalue = jedis.mget("userkey", "somekey", "anotherkey", "order:1", "order:2", "order:3", "order:4", "order:5", "order:6", "userkey1", "somekey1", "anotherkey1", "z1");
+//        System.out.println("mvalue: " + mvalue);
+        
+        String foobar = jedis.get("foo");
+        System.out.println("foobar: " + foobar);
+        Set<String> sose = jedis.zrange("sose", 0, -1);
+        System.out.println("sose: " + sose);
 
         System.out.println("done...");
     }

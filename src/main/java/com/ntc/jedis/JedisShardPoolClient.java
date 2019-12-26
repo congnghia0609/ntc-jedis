@@ -33,15 +33,15 @@ import redis.clients.jedis.ShardedJedisPool;
  * @author nghiatc
  * @since Mar 7, 2018
  */
-public class JedisShardClient {
-    private static final Logger logger = LoggerFactory.getLogger(JedisShardClient.class);
-	private static final ConcurrentHashMap<String, JedisShardClient> mapInstance = new ConcurrentHashMap<String, JedisShardClient>(16, 0.9f, 16);
+public class JedisShardPoolClient {
+    private static final Logger logger = LoggerFactory.getLogger(JedisShardPoolClient.class);
+	private static final ConcurrentHashMap<String, JedisShardPoolClient> mapInstance = new ConcurrentHashMap<String, JedisShardPoolClient>(16, 0.9f, 16);
 	private static Lock lock = new ReentrantLock();
 
 	private ShardedJedisPool pool;
     List<JedisShardInfo> listShards = new ArrayList<JedisShardInfo>();
 
-    private JedisShardClient(String prefix) {
+    private JedisShardPoolClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
         cfg.setTestOnBorrow(true);
         cfg.setMaxTotal(100); // DEFAULT_MAX_TOTAL = 8 ==> the number instance in pool.
@@ -72,14 +72,14 @@ public class JedisShardClient {
         pool = new ShardedJedisPool(cfg, listShards);
     }
 
-	public static JedisShardClient getInstance(String prefix) {
-		JedisShardClient instance = mapInstance.get(prefix);
+	public static JedisShardPoolClient getInstance(String prefix) {
+		JedisShardPoolClient instance = mapInstance.get(prefix);
 		if(instance == null) {
 			lock.lock();
 			try {
 				instance = mapInstance.get(prefix);
 				if(instance == null) {
-					instance = new JedisShardClient(prefix);
+					instance = new JedisShardPoolClient(prefix);
 					mapInstance.put(prefix, instance);
 				}
 			} finally {

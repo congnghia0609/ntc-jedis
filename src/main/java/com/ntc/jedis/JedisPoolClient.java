@@ -31,14 +31,14 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author nghiatc
  * @since Mar 7, 2018
  */
-public class JedisClient {
-    private static final Logger logger = LoggerFactory.getLogger(JedisClient.class);
-	private static final ConcurrentHashMap<String, JedisClient> mapInstance = new ConcurrentHashMap<String, JedisClient>(16, 0.9f, 16);
+public class JedisPoolClient {
+    private static final Logger logger = LoggerFactory.getLogger(JedisPoolClient.class);
+	private static final ConcurrentHashMap<String, JedisPoolClient> mapInstance = new ConcurrentHashMap<String, JedisPoolClient>(16, 0.9f, 16);
 	private static Lock lock = new ReentrantLock();
 
 	private JedisPool pool;
 
-    private JedisClient(String prefix) {
+    private JedisPoolClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
         cfg.setTestOnBorrow(true);
         cfg.setMaxTotal(100); // DEFAULT_MAX_TOTAL = 8 ==> the number instance in pool.
@@ -49,14 +49,14 @@ public class JedisClient {
         pool = new JedisPool(cfg, host, port);
     }
 
-	public static JedisClient getInstance(String prefix) {
-		JedisClient instance = mapInstance.get(prefix);
+	public static JedisPoolClient getInstance(String prefix) {
+		JedisPoolClient instance = mapInstance.get(prefix);
 		if(instance == null) {
 			lock.lock();
 			try {
 				instance = mapInstance.get(prefix);
 				if(instance == null) {
-					instance = new JedisClient(prefix);
+					instance = new JedisPoolClient(prefix);
 					mapInstance.put(prefix, instance);
 				}
 			} finally {

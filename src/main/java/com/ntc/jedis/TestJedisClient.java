@@ -51,7 +51,7 @@ public class TestJedisClient {
     }
     
     public static void test1(){
-        Jedis jedis = JedisClient.getInstance("test").borrowJedis();
+        Jedis jedis = JedisPoolClient.getInstance("test").borrowJedis();
         try {
             jedis.set("foo", "bar");
             String foobar = jedis.get("foo");
@@ -63,7 +63,7 @@ public class TestJedisClient {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JedisClient.returnJedis(jedis);
+            JedisPoolClient.returnJedis(jedis);
         }
     }
 
@@ -72,11 +72,11 @@ public class TestJedisClient {
         try {
             if (proxy) {
                 // Twemproxy no support Transactions
-                jedis = JedisClient.getInstance("test").borrowJedis();
+                jedis = JedisPoolClient.getInstance("test").borrowJedis();
             } else {
                 // No Twemproxy proxy, use directly Redis Single node --> support transaction
                 // jedis = new Jedis("127.0.0.1", 6380);
-                jedis = JedisClient.getInstance("transaction").borrowJedis();
+                jedis = JedisPoolClient.getInstance("transaction").borrowJedis();
             }
             Transaction t = jedis.multi();
             t.set("fool", "bar"); 
@@ -96,7 +96,7 @@ public class TestJedisClient {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JedisClient.returnJedis(jedis);
+            JedisPoolClient.returnJedis(jedis);
         }
     }
     
@@ -105,11 +105,11 @@ public class TestJedisClient {
         try {
             if (proxy) {
                 // Twemproxy no support Pipeline
-                jedis = JedisClient.getInstance("test").borrowJedis();
+                jedis = JedisPoolClient.getInstance("test").borrowJedis();
             } else {
                 // No Twemproxy proxy, use directly Redis Single node --> support Pipeline
                 // jedis = new Jedis("127.0.0.1", 6380);
-                jedis = JedisClient.getInstance("pipeline").borrowJedis();
+                jedis = JedisPoolClient.getInstance("pipeline").borrowJedis();
             }
             Pipeline p = jedis.pipelined();
             p.set("fool", "bar"); 
@@ -126,7 +126,7 @@ public class TestJedisClient {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JedisClient.returnJedis(jedis);
+            JedisPoolClient.returnJedis(jedis);
         }
     }
 }

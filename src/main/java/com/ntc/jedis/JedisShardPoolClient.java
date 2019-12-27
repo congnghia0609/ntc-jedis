@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.ntc.jedis;
 
 import com.ntc.configer.NConfig;
@@ -35,10 +34,10 @@ import redis.clients.jedis.ShardedJedisPool;
  */
 public class JedisShardPoolClient {
     private static final Logger logger = LoggerFactory.getLogger(JedisShardPoolClient.class);
-	private static final ConcurrentHashMap<String, JedisShardPoolClient> mapInstance = new ConcurrentHashMap<String, JedisShardPoolClient>(16, 0.9f, 16);
-	private static Lock lock = new ReentrantLock();
+    private static final ConcurrentHashMap<String, JedisShardPoolClient> mapInstance = new ConcurrentHashMap<String, JedisShardPoolClient>(16, 0.9f, 16);
+    private static Lock lock = new ReentrantLock();
 
-	private ShardedJedisPool pool;
+    private ShardedJedisPool pool;
     private List<JedisShardInfo> listShards = new ArrayList<>();
 
     private JedisShardPoolClient(String prefix) {
@@ -51,7 +50,7 @@ public class JedisShardPoolClient {
         if (shards != null && !shards.isEmpty()) {
             String[] arrShards = shards.split(";");
             System.out.println("arrShards: " + Arrays.asList(arrShards));
-            for (String shard : arrShards){
+            for (String shard : arrShards) {
                 String[] sh = shard.split(":");
                 System.out.println("sh: " + Arrays.asList(sh));
                 if (sh.length == 2) {
@@ -72,22 +71,22 @@ public class JedisShardPoolClient {
         pool = new ShardedJedisPool(cfg, listShards);
     }
 
-	public static JedisShardPoolClient getInstance(String prefix) {
-		JedisShardPoolClient instance = mapInstance.get(prefix);
-		if(instance == null) {
-			lock.lock();
-			try {
-				instance = mapInstance.get(prefix);
-				if(instance == null) {
-					instance = new JedisShardPoolClient(prefix);
-					mapInstance.put(prefix, instance);
-				}
-			} finally {
-				lock.unlock();
-			}
-		}
-		return instance;
-	}
+    public static JedisShardPoolClient getInstance(String prefix) {
+        JedisShardPoolClient instance = mapInstance.get(prefix);
+        if (instance == null) {
+            lock.lock();
+            try {
+                instance = mapInstance.get(prefix);
+                if (instance == null) {
+                    instance = new JedisShardPoolClient(prefix);
+                    mapInstance.put(prefix, instance);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+        return instance;
+    }
 
     public ShardedJedisPool getPool() {
         return pool;
@@ -96,8 +95,8 @@ public class JedisShardPoolClient {
     public List<JedisShardInfo> getListShards() {
         return listShards;
     }
-    
-    public ShardedJedis borrowJedis(){
+
+    public ShardedJedis borrowJedis() {
         ShardedJedis jedis = null;
         try {
             jedis = pool.getResource();
@@ -106,8 +105,8 @@ public class JedisShardPoolClient {
         }
         return jedis;
     }
-    
-    public static void returnJedis(ShardedJedis jedis){
+
+    public static void returnJedis(ShardedJedis jedis) {
         try {
             if (jedis != null) {
                 jedis.close();
@@ -116,5 +115,4 @@ public class JedisShardPoolClient {
             logger.error("returnJedis: ", e);
         }
     }
-    
 }

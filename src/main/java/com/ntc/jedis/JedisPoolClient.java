@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.ntc.jedis;
 
 import com.ntc.configer.NConfig;
@@ -33,10 +32,10 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 public class JedisPoolClient {
     private static final Logger logger = LoggerFactory.getLogger(JedisPoolClient.class);
-	private static final ConcurrentHashMap<String, JedisPoolClient> mapInstance = new ConcurrentHashMap<String, JedisPoolClient>(16, 0.9f, 16);
-	private static Lock lock = new ReentrantLock();
+    private static final ConcurrentHashMap<String, JedisPoolClient> mapInstance = new ConcurrentHashMap<String, JedisPoolClient>(16, 0.9f, 16);
+    private static Lock lock = new ReentrantLock();
 
-	private JedisPool pool;
+    private JedisPool pool;
 
     private JedisPoolClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
@@ -49,28 +48,28 @@ public class JedisPoolClient {
         pool = new JedisPool(cfg, host, port);
     }
 
-	public static JedisPoolClient getInstance(String prefix) {
-		JedisPoolClient instance = mapInstance.get(prefix);
-		if(instance == null) {
-			lock.lock();
-			try {
-				instance = mapInstance.get(prefix);
-				if(instance == null) {
-					instance = new JedisPoolClient(prefix);
-					mapInstance.put(prefix, instance);
-				}
-			} finally {
-				lock.unlock();
-			}
-		}
-		return instance;
-	}
+    public static JedisPoolClient getInstance(String prefix) {
+        JedisPoolClient instance = mapInstance.get(prefix);
+        if (instance == null) {
+            lock.lock();
+            try {
+                instance = mapInstance.get(prefix);
+                if (instance == null) {
+                    instance = new JedisPoolClient(prefix);
+                    mapInstance.put(prefix, instance);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+        return instance;
+    }
 
     public JedisPool getPool() {
         return pool;
     }
-    
-    public Jedis borrowJedis(){
+
+    public Jedis borrowJedis() {
         Jedis jedis = null;
         try {
             jedis = pool.getResource();
@@ -79,8 +78,8 @@ public class JedisPoolClient {
         }
         return jedis;
     }
-    
-    public static void returnJedis(Jedis jedis){
+
+    public static void returnJedis(Jedis jedis) {
         try {
             if (jedis != null) {
                 jedis.close();
@@ -89,5 +88,4 @@ public class JedisPoolClient {
             logger.error("returnJedis: ", e);
         }
     }
-    
 }

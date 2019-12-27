@@ -17,6 +17,8 @@
 package com.ntc.jedis;
 
 import java.util.Arrays;
+import java.util.Set;
+import redis.clients.jedis.ShardedJedis;
 
 /**
  *
@@ -29,6 +31,49 @@ public class TestJedisShard {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        try {
+            //1. Put data.
+            //test2();
+            
+            // 2. Get data.
+            test3();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void test3() {
+        ShardedJedis jedis = JedisShardPoolClient.getInstance("test").borrowJedis();
+        try {
+            String foobar = jedis.get("key");
+            System.out.println("key: " + foobar);
+            Set<String> sose = jedis.zrange("setstring", 0, -1);
+            System.out.println("setstring: " + sose);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JedisShardPoolClient.returnJedis(jedis);
+        }
+    }
+    
+    public static void test2() {
+        ShardedJedis jedis = JedisShardPoolClient.getInstance("test").borrowJedis();
+        try {
+            jedis.set("key", "value");
+            String foobar = jedis.get("key");
+            System.out.println("key: " + foobar);
+            jedis.zadd("setstring", 0, "car");
+            jedis.zadd("setstring", 0, "bike");
+            Set<String> sose = jedis.zrange("setstring", 0, -1);
+            System.out.println("setstring: " + sose);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JedisShardPoolClient.returnJedis(jedis);
+        }
+    }
+    
+    public static void test1() {
         String s = "127.0.0.1:1111:;127.0.0.2:2222;127.0.0.3:3333:cccc";
         String[] arr = s.split(";");
         System.out.println("arr: " + Arrays.asList(arr));
@@ -42,5 +87,4 @@ public class TestJedisShard {
         //arrt: [127.0.0.2, 2222]
         //arrt: [127.0.0.3, 3333, cccc]
     }
-
 }

@@ -65,6 +65,10 @@ public class JedisPoolClient {
 		}
 		return instance;
 	}
+
+    public JedisPool getPool() {
+        return pool;
+    }
     
     public Jedis borrowJedis(){
         Jedis jedis = null;

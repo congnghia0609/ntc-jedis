@@ -37,13 +37,13 @@ public class TestJedisClient {
     public static void main(String[] args) {
         try {
             // 1. test1
-//            test1();
+            test1();
             
             // 2. testTransaction
 //            testTransaction(false);
             
             // 3. testPipeline
-            testPipeline(false);
+//            testPipeline(false);
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,13 +51,14 @@ public class TestJedisClient {
     }
     
     public static void test1(){
+        // Twemproxy
         Jedis jedis = JedisPoolClient.getInstance("test").borrowJedis();
         try {
             jedis.set("foo", "bar");
             String foobar = jedis.get("foo");
             System.out.println("foobar: " + foobar);
             jedis.zadd("sose", 0, "car");
-            jedis.zadd("sose", 0, "bike"); 
+            jedis.zadd("sose", 0, "bike");
             Set<String> sose = jedis.zrange("sose", 0, -1);
             System.out.println("sose: " + sose);
         } catch (Exception e) {

@@ -39,7 +39,7 @@ public class JedisShardPoolClient {
 	private static Lock lock = new ReentrantLock();
 
 	private ShardedJedisPool pool;
-    List<JedisShardInfo> listShards = new ArrayList<JedisShardInfo>();
+    private List<JedisShardInfo> listShards = new ArrayList<>();
 
     private JedisShardPoolClient(String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();
@@ -88,6 +88,14 @@ public class JedisShardPoolClient {
 		}
 		return instance;
 	}
+
+    public ShardedJedisPool getPool() {
+        return pool;
+    }
+
+    public List<JedisShardInfo> getListShards() {
+        return listShards;
+    }
     
     public ShardedJedis borrowJedis(){
         ShardedJedis jedis = null;

@@ -68,6 +68,10 @@ public class TestJedisClient {
         }
     }
 
+    /**
+     * Dung Transaction khi can bao ve 1 so hanh dong lien tuc voi nhau.
+     * @param proxy use proxy Twemproxy
+     */
     public static void testTransaction(boolean proxy){
         Jedis jedis = null;
         try {
@@ -101,6 +105,10 @@ public class TestJedisClient {
         }
     }
     
+    /**
+     * Dung Pipeline khi can lam 1 so luong lon cac hoat dong xuong Redis.
+     * @param proxy use proxy Twemproxy
+     */
     public static void testPipeline(boolean proxy){
         Jedis jedis = null;
         try {
